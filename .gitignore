@@ -1,0 +1,24 @@
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backend Build
+backend/target/
+backend/*.jar
+
+# Frontend Build & Modules
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+
+# Secrets & Data
+.env
+*.xlsx
+*.csv
+*.log

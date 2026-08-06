@@ -1,0 +1,21 @@
+# Test profile — uses H2 in-memory database so tests don't need MySQL
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=USER,USERS
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: false
+
+jwt:
+  secret: dGVzdFNlY3JldEtleUZvclVuaXRUZXN0aW5nT25seU5vdFByb2R1Y3Rpb24=
+  access-token-expiry-ms: 900000
+  refresh-token-expiry-ms: 604800000
