@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   Dialog, DialogContent, Button, Box, Typography, Divider, Grid, Chip,
   IconButton, Tooltip, Stack, Avatar, TextField, InputAdornment, Alert,
-  Checkbox, FormControlLabel
+  Checkbox, FormControlLabel, useMediaQuery, useTheme
 } from '@mui/material';
 import {
   Close, ContentCopy, Edit, DeleteOutlined, AddPhotoAlternate,
@@ -73,6 +73,8 @@ function getSpecItems(tab, row) {
 export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdateRow, onDeleteRow }) {
   const { isAdmin } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({});
@@ -231,19 +233,22 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
     }
   };
 
+  const specTabs = ['OVERVIEW & CODES', 'PRICING & TAXES', 'REGISTRATION & HANDLING', 'INSURANCE & EXTRAS'];
+
   return (
     <Dialog
       open={!!row}
       onClose={onClose}
       maxWidth="lg"
       fullWidth
+      fullScreen={isMobile}
       scroll="paper"
       PaperProps={{
         sx: {
           backgroundColor: '#FFFFFF',
-          borderRadius: 4,
+          borderRadius: isMobile ? 0 : 4,
           overflow: 'hidden',
-          boxShadow: '0 24px 60px rgba(0,0,0,0.15)',
+          boxShadow: isMobile ? 'none' : '0 24px 60px rgba(0,0,0,0.15)',
         },
       }}
     >
@@ -256,11 +261,11 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
       />
 
       {/* ── Top Header Bar ─────────────────────────────────────────── */}
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2.5, backgroundColor: '#111111', color: '#FFFFFF' }}>
-        <Box display="flex" alignItems="center" gap={1.5}>
-          <DirectionsCar sx={{ color: '#E31837', fontSize: 24 }} />
-          <Typography variant="subtitle1" fontWeight={800} sx={{ letterSpacing: 1.5, textTransform: 'uppercase' }}>
-            Vehicle Information Portfolio
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: { xs: 1.5, md: 2.5 }, backgroundColor: '#111111', color: '#FFFFFF' }}>
+        <Box display="flex" alignItems="center" gap={1.5} sx={{ minWidth: 0 }}>
+          <DirectionsCar sx={{ color: '#E31837', fontSize: { xs: 20, md: 24 } }} />
+          <Typography variant={isMobile ? "body2" : "subtitle1"} fontWeight={800} sx={{ letterSpacing: 1.5, textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {isMobile ? 'Vehicle Details' : 'Vehicle Information Portfolio'}
           </Typography>
         </Box>
         <IconButton onClick={onClose} size="small" sx={{ color: '#FFFFFF', '&:hover': { color: '#E31837', backgroundColor: 'rgba(255, 255, 255, 0.1)' } }}>
@@ -268,21 +273,21 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
         </IconButton>
       </Box>
 
-      <DialogContent sx={{ p: { xs: 3, md: 5 } }}>
+      <DialogContent sx={{ p: { xs: 2, sm: 3, md: 5 } }}>
         {/* View-specific Delete Confirmation Alert */}
         {confirmDelete && (
           <Alert 
             severity="warning" 
             icon={<Warning />}
-            sx={{ mb: 4, borderRadius: 3, border: '1px solid rgba(237, 108, 2, 0.3)', backgroundColor: '#FFF4E5', p: 2.5 }}
+            sx={{ mb: { xs: 2, md: 4 }, borderRadius: 3, border: '1px solid rgba(237, 108, 2, 0.3)', backgroundColor: '#FFF4E5', p: { xs: 1.5, md: 2.5 } }}
           >
-            <Typography variant="subtitle1" fontWeight={800} gutterBottom color="warning.dark">
+            <Typography variant={isMobile ? "body2" : "subtitle1"} fontWeight={800} gutterBottom color="warning.dark">
               Remove this vehicle from your current view?
             </Typography>
-            <Typography variant="body2" mb={2} color="text.primary">
+            <Typography variant="body2" mb={2} color="text.primary" sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}>
               This action will hide <strong>{row.modelDescription}</strong> from your search results and current table view. It will <strong>not</strong> modify or delete the record from the database.
             </Typography>
-            <Stack direction="row" spacing={1.5}>
+            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
               <Button 
                 variant="contained" 
                 color="error" 
@@ -293,9 +298,9 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
                   onClose();
                   enqueueSnackbar('Vehicle removed from view (database unchanged)', { variant: 'info' });
                 }}
-                sx={{ fontWeight: 700, px: 2 }}
+                sx={{ fontWeight: 700, px: 2, fontSize: { xs: '0.7rem', md: '0.8125rem' } }}
               >
-                Confirm Remove from View
+                {isMobile ? 'Confirm Remove' : 'Confirm Remove from View'}
               </Button>
               <Button 
                 variant="outlined" 
@@ -311,14 +316,14 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
         )}
 
         {/* ── Hero Product Section ───────────────────────────────────── */}
-        <Grid container spacing={5} mb={6}>
+        <Grid container spacing={{ xs: 2, md: 5 }} mb={{ xs: 3, md: 6 }}>
           {/* Left: Image Box */}
           <Grid item xs={12} md={5}>
             <Box
               sx={{
                 width: '100%',
-                height: 360,
-                borderRadius: 4,
+                height: { xs: 200, sm: 280, md: 360 },
+                borderRadius: { xs: 3, md: 4 },
                 background: 'linear-gradient(135deg, #F8F9FA 0%, #E2E8F0 100%)',
                 display: 'flex',
                 flexDirection: 'column',
@@ -337,17 +342,17 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
                     <Box
                       sx={{
                         position: 'absolute',
-                        bottom: 12,
-                        right: 12,
+                        bottom: 8,
+                        right: 8,
                         display: 'flex',
-                        gap: 1
+                        gap: 0.5
                       }}
                     >
                       <Button
                         variant="contained"
                         startIcon={<AddPhotoAlternate />}
                         size="small"
-                        sx={{ backgroundColor: 'rgba(17,17,17,0.85)', color: '#fff', '&:hover': { backgroundColor: '#111' }, backdropFilter: 'blur(4px)' }}
+                        sx={{ backgroundColor: 'rgba(17,17,17,0.85)', color: '#fff', '&:hover': { backgroundColor: '#111' }, backdropFilter: 'blur(4px)', fontSize: { xs: '0.65rem', md: '0.8125rem' }, px: { xs: 1, md: 2 } }}
                         onClick={() => fileInputRef.current?.click()}
                       >
                         Change
@@ -356,7 +361,7 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
                         variant="contained"
                         color="error"
                         size="small"
-                        sx={{ backgroundColor: 'rgba(227,24,55,0.85)', '&:hover': { backgroundColor: '#B00018' }, backdropFilter: 'blur(4px)' }}
+                        sx={{ backgroundColor: 'rgba(227,24,55,0.85)', '&:hover': { backgroundColor: '#B00018' }, backdropFilter: 'blur(4px)', fontSize: { xs: '0.65rem', md: '0.8125rem' }, px: { xs: 1, md: 2 } }}
                         onClick={handleRemoveImage}
                       >
                         Remove
@@ -366,8 +371,8 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
                 </>
               ) : (
                 <>
-                  <DirectionsCar sx={{ fontSize: 100, color: '#CBD5E1', mb: 2 }} />
-                  <Typography variant="h5" fontWeight={800} color="#94A3B8" sx={{ textTransform: 'uppercase', letterSpacing: 2 }}>
+                  <DirectionsCar sx={{ fontSize: { xs: 60, md: 100 }, color: '#CBD5E1', mb: { xs: 1, md: 2 } }} />
+                  <Typography variant={isMobile ? "body1" : "h5"} fontWeight={800} color="#94A3B8" sx={{ textTransform: 'uppercase', letterSpacing: 2, textAlign: 'center', px: 2 }}>
                     {vehicleName}
                   </Typography>
                   <Typography variant="caption" color="#94A3B8" sx={{ mt: 1 }}>
@@ -378,7 +383,7 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
                       variant="contained"
                       startIcon={<AddPhotoAlternate />}
                       size="small"
-                      sx={{ position: 'absolute', bottom: 16, right: 16, backgroundColor: '#111111', color: '#fff', '&:hover': { backgroundColor: '#333' }, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}
+                      sx={{ position: 'absolute', bottom: 12, right: 12, backgroundColor: '#111111', color: '#fff', '&:hover': { backgroundColor: '#333' }, boxShadow: '0 4px 12px rgba(0,0,0,0.15)', fontSize: { xs: '0.7rem', md: '0.8125rem' } }}
                       onClick={() => fileInputRef.current?.click()}
                     >
                       Upload Image
@@ -393,7 +398,7 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
           <Grid item xs={12} md={7} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             {isEditing ? (
               <Box sx={{ mb: 2 }}>
-                <Typography variant="h6" fontWeight={800} color="primary" gutterBottom>
+                <Typography variant="h6" fontWeight={800} color="primary" gutterBottom sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}>
                   Edit Vehicle Details (View Only)
                 </Typography>
                 <Grid container spacing={2}>
@@ -442,25 +447,25 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
               </Box>
             ) : (
               <>
-                <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                <Box sx={{ display: 'flex', gap: 0.5, mb: 1.5, flexWrap: 'wrap' }}>
                   <Chip label={row.model} size="small" sx={{ backgroundColor: '#E31837', color: '#fff', fontWeight: 700 }} />
                   {row.dmsCode && <Chip label={`DMS: ${row.dmsCode}`} size="small" sx={{ backgroundColor: '#111111', color: '#fff', fontWeight: 700 }} />}
                   <Chip label="Active" size="small" color="success" sx={{ fontWeight: 700 }} />
                 </Box>
 
-                <Typography variant="h3" fontWeight={900} color="text.primary" sx={{ letterSpacing: '-1px', mb: 1, lineHeight: 1.1 }}>
+                <Typography variant={isMobile ? "h5" : "h3"} fontWeight={900} color="text.primary" sx={{ letterSpacing: '-1px', mb: 1, lineHeight: 1.1 }}>
                   {row.modelDescription}
                 </Typography>
 
-                <Typography variant="h6" color="text.secondary" fontWeight={500} mb={3}>
+                <Typography variant={isMobile ? "body2" : "h6"} color="text.secondary" fontWeight={500} mb={{ xs: 2, md: 3 }}>
                   Standard Variant Details
                 </Typography>
 
-                <Box sx={{ p: 2.5, backgroundColor: '#F8F9FA', borderRadius: 2, border: '1px solid rgba(0,0,0,0.06)', display: 'inline-block', alignSelf: 'flex-start' }}>
+                <Box sx={{ p: { xs: 2, md: 2.5 }, backgroundColor: '#F8F9FA', borderRadius: 2, border: '1px solid rgba(0,0,0,0.06)', display: 'inline-block', alignSelf: 'flex-start' }}>
                   <Typography variant="overline" color="text.secondary" fontWeight={700}>
                     Ex-Showroom Price
                   </Typography>
-                  <Typography variant="h4" color="primary.main" fontWeight={900}>
+                  <Typography variant={isMobile ? "h5" : "h4"} color="primary.main" fontWeight={900}>
                     ₹{fmtVal(row.exShowroomPrice, true)}
                   </Typography>
                 </Box>
@@ -469,11 +474,12 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
 
             {/* Admin Controls */}
             {isAdmin && !isEditing && (
-              <Stack direction="row" spacing={2} mt={4}>
+              <Stack direction="row" spacing={1.5} mt={{ xs: 2, md: 4 }} flexWrap="wrap" useFlexGap>
                 <Button 
                   variant="outlined" 
                   startIcon={<Edit />} 
                   color="primary" 
+                  size={isMobile ? "small" : "medium"}
                   onClick={() => { setIsEditing(true); setConfirmDelete(false); }}
                   sx={{ fontWeight: 700 }}
                 >
@@ -483,6 +489,7 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
                   variant="outlined" 
                   startIcon={<DeleteOutlined />} 
                   color="error" 
+                  size={isMobile ? "small" : "medium"}
                   onClick={() => { setConfirmDelete(true); setIsEditing(false); }}
                   sx={{ fontWeight: 700 }}
                 >
@@ -492,11 +499,12 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
             )}
 
             {isEditing && (
-              <Stack direction="row" spacing={2} mt={3}>
+              <Stack direction="row" spacing={1.5} mt={{ xs: 2, md: 3 }} flexWrap="wrap" useFlexGap>
                 <Button 
                   variant="contained" 
                   startIcon={<Save />} 
                   onClick={handleSaveEdit}
+                  size={isMobile ? "small" : "medium"}
                   sx={{ backgroundColor: '#E31837', '&:hover': { backgroundColor: '#B00018' }, fontWeight: 700 }}
                 >
                   Save to View
@@ -505,6 +513,7 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
                   variant="outlined" 
                   startIcon={<Cancel />} 
                   color="inherit" 
+                  size={isMobile ? "small" : "medium"}
                   onClick={() => { setIsEditing(false); setEditForm({ ...row }); }}
                   sx={{ fontWeight: 600 }}
                 >
@@ -515,67 +524,76 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
           </Grid>
         </Grid>
 
-        <Divider sx={{ mb: 5, borderColor: 'rgba(0,0,0,0.08)' }} />
+        <Divider sx={{ mb: { xs: 3, md: 5 }, borderColor: 'rgba(0,0,0,0.08)' }} />
 
         {/* ── Interactive Pricing & Payment Calculator (Screenshot 1 Style) ── */}
-        <Box mb={3} display="flex" alignItems="center" gap={1.5}>
-          <Avatar sx={{ bgcolor: 'rgba(17, 17, 17, 0.1)', color: '#111111' }}>
+        <Box mb={{ xs: 2, md: 3 }} display="flex" alignItems="center" gap={1.5}>
+          <Avatar sx={{ bgcolor: 'rgba(17, 17, 17, 0.1)', color: '#111111', width: { xs: 36, md: 40 }, height: { xs: 36, md: 40 } }}>
             <Calculate />
           </Avatar>
           <Box>
-            <Typography variant="h5" fontWeight={900}>
+            <Typography variant={isMobile ? "h6" : "h5"} fontWeight={900}>
               Pricing & Payment Calculator
             </Typography>
-            <Typography variant="caption" color="text.secondary">
+            <Typography variant="caption" color="text.secondary" sx={{ display: { xs: 'none', sm: 'block' } }}>
               Default values taken from table. Editable by all users to calculate custom estimates.
             </Typography>
           </Box>
         </Box>
 
         {/* Total Estimated Price Banner */}
-        <Box sx={{ p: 3, mb: 4, borderRadius: 3, background: 'linear-gradient(135deg, #111111 0%, #2A2A2A 100%)', color: '#fff', display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 8px 24px rgba(0,0,0,0.15)' }}>
-          <Box>
-            <Typography variant="overline" sx={{ color: '#94A3B8', fontWeight: 700, letterSpacing: 1.5 }}>
-              TOTAL ESTIMATED ON-ROAD PRICE
-            </Typography>
-            <Typography variant="h3" sx={{ fontWeight: 900, color: '#FFFFFF', mt: 0.5 }}>
-              ₹{calcTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </Typography>
+        <Box sx={{
+          p: { xs: 2, md: 3 },
+          mb: { xs: 2, md: 4 },
+          borderRadius: 3,
+          background: 'linear-gradient(135deg, #111111 0%, #2A2A2A 100%)',
+          color: '#fff',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.15)'
+        }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' } }}>
+            <Box>
+              <Typography variant="overline" sx={{ color: '#94A3B8', fontWeight: 700, letterSpacing: 1.5, fontSize: { xs: '0.6rem', md: '0.75rem' } }}>
+                TOTAL ESTIMATED ON-ROAD PRICE
+              </Typography>
+              <Typography variant={isMobile ? "h4" : "h3"} sx={{ fontWeight: 900, color: '#FFFFFF', mt: 0.5 }}>
+                ₹{calcTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </Typography>
+            </Box>
+            <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
+              <Chip label="Live Interactive Sum" size="small" sx={{ bgcolor: 'rgba(227,24,55,0.2)', color: '#FF4D6D', fontWeight: 700, border: '1px solid rgba(227,24,55,0.4)', fontSize: { xs: '0.65rem', md: '0.75rem' } }} />
+              <Button 
+                variant="outlined" 
+                size="small" 
+                startIcon={<Refresh />}
+                onClick={handleResetCalculator}
+                sx={{ color: '#fff', borderColor: 'rgba(255,255,255,0.3)', '&:hover': { borderColor: '#fff', bgcolor: 'rgba(255,255,255,0.1)' }, fontWeight: 600, fontSize: { xs: '0.65rem', md: '0.8125rem' } }}
+              >
+                Reset
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<Save />}
+                onClick={handleSaveCalculatorToView}
+                sx={{ bgcolor: '#E31837', '&:hover': { bgcolor: '#B00018' }, fontWeight: 700, fontSize: { xs: '0.65rem', md: '0.8125rem' } }}
+              >
+                Save
+              </Button>
+            </Stack>
           </Box>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <Chip label="Live Interactive Sum" sx={{ bgcolor: 'rgba(227,24,55,0.2)', color: '#FF4D6D', fontWeight: 700, border: '1px solid rgba(227,24,55,0.4)' }} />
-            <Button 
-              variant="outlined" 
-              size="small" 
-              startIcon={<Refresh />}
-              onClick={handleResetCalculator}
-              sx={{ color: '#fff', borderColor: 'rgba(255,255,255,0.3)', '&:hover': { borderColor: '#fff', bgcolor: 'rgba(255,255,255,0.1)' }, fontWeight: 600 }}
-            >
-              Reset Defaults
-            </Button>
-            <Button
-              variant="contained"
-              size="small"
-              startIcon={<Save />}
-              onClick={handleSaveCalculatorToView}
-              sx={{ bgcolor: '#E31837', '&:hover': { bgcolor: '#B00018' }, fontWeight: 700 }}
-            >
-              Save to View
-            </Button>
-          </Stack>
         </Box>
 
         {/* Grid of Input Boxes styled like Screenshot 1 */}
-        <Grid container spacing={3} mb={6}>
+        <Grid container spacing={{ xs: 1.5, md: 3 }} mb={{ xs: 3, md: 6 }}>
           {CALC_FIELDS.map((field) => {
             const isEditable = field.editable;
             const isToggleable = field.toggleable;
             const isToggled = isToggleable ? toggles[field.id] : true;
 
             return (
-              <Grid item xs={12} sm={6} md={4} key={field.id}>
+              <Grid item xs={6} sm={6} md={4} key={field.id}>
                 <Box sx={{
-                  p: 2,
+                  p: { xs: 1.5, md: 2 },
                   border: `1px solid ${isEditable ? 'rgba(0,0,0,0.15)' : 'rgba(0,0,0,0.08)'}`,
                   borderRadius: 2,
                   bgcolor: isEditable ? '#FFFFFF' : '#F8F9FA',
@@ -586,7 +604,7 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
                   }),
                 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-                    <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                    <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ textTransform: 'uppercase', letterSpacing: 0.5, fontSize: { xs: '0.55rem', md: '0.75rem' }, lineHeight: 1.2 }}>
                       {field.label}
                     </Typography>
                     {isToggleable && (
@@ -604,7 +622,7 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
                           />
                         }
                         label={
-                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem', ml: 0.3 }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.55rem', ml: 0.3, display: { xs: 'none', sm: 'inline' } }}>
                             {isToggled ? 'Included' : 'Excluded'}
                           </Typography>
                         }
@@ -625,9 +643,9 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
                     InputProps={{
                       disableUnderline: true,
                       readOnly: !isEditable,
-                      startAdornment: <InputAdornment position="start" sx={{ '& .MuiTypography-root': { fontWeight: 800, color: isEditable ? '#111' : '#94A3B8', fontSize: '1.1rem' } }}>₹</InputAdornment>,
+                      startAdornment: <InputAdornment position="start" sx={{ '& .MuiTypography-root': { fontWeight: 800, color: isEditable ? '#111' : '#94A3B8', fontSize: { xs: '0.85rem', md: '1.1rem' } } }}>₹</InputAdornment>,
                       sx: {
-                        fontSize: '1.25rem',
+                        fontSize: { xs: '0.95rem', md: '1.25rem' },
                         fontWeight: 800,
                         color: isEditable ? '#111' : '#64748B',
                         cursor: isEditable ? 'text' : 'default',
@@ -640,56 +658,60 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
           })}
         </Grid>
 
-        <Divider sx={{ mb: 5, borderColor: 'rgba(0,0,0,0.08)' }} />
+        <Divider sx={{ mb: { xs: 3, md: 5 }, borderColor: 'rgba(0,0,0,0.08)' }} />
 
         {/* ── Tabbed Specifications Section (Screenshot 2 Style) ───────── */}
-        <Box mb={3} display="flex" alignItems="center" gap={1.5}>
-          <Avatar sx={{ bgcolor: 'rgba(227, 24, 55, 0.1)', color: '#E31837' }}>
+        <Box mb={{ xs: 2, md: 3 }} display="flex" alignItems="center" gap={1.5}>
+          <Avatar sx={{ bgcolor: 'rgba(227, 24, 55, 0.1)', color: '#E31837', width: { xs: 36, md: 40 }, height: { xs: 36, md: 40 } }}>
             <ListAlt />
           </Avatar>
-          <Typography variant="h5" fontWeight={900}>
+          <Typography variant={isMobile ? "h6" : "h5"} fontWeight={900}>
             Specifications
           </Typography>
         </Box>
 
-        {/* Category Tabs styled like Screenshot 2 */}
-        <Stack direction="row" spacing={1.5} mb={4} flexWrap="wrap" useFlexGap>
-          {['OVERVIEW & CODES', 'PRICING & TAXES', 'REGISTRATION & HANDLING', 'INSURANCE & EXTRAS'].map((tabName) => {
-            const isSelected = specTab === tabName;
-            return (
-              <Button
-                key={tabName}
-                onClick={() => setSpecTab(tabName)}
-                sx={{
-                  borderRadius: 0,
-                  px: 3,
-                  py: 1.2,
-                  fontWeight: 800,
-                  fontSize: '0.75rem',
-                  letterSpacing: 1,
-                  textTransform: 'uppercase',
-                  border: '2px solid #111111',
-                  backgroundColor: isSelected ? '#111111' : '#FFFFFF',
-                  color: isSelected ? '#FFFFFF' : '#111111',
-                  '&:hover': {
-                    backgroundColor: isSelected ? '#000000' : '#F4F6F8',
-                  },
-                  boxShadow: isSelected ? '0 4px 12px rgba(0,0,0,0.15)' : 'none',
-                  transition: 'all 0.15s ease',
-                }}
-              >
-                {tabName}
-              </Button>
-            );
-          })}
-        </Stack>
+        {/* Category Tabs styled like Screenshot 2 — scrollable on mobile */}
+        <Box sx={{ overflowX: 'auto', mb: { xs: 2, md: 4 }, pb: 1, WebkitOverflowScrolling: 'touch', '&::-webkit-scrollbar': { height: 0 } }}>
+          <Stack direction="row" spacing={1} sx={{ minWidth: 'max-content' }}>
+            {specTabs.map((tabName) => {
+              const isSelected = specTab === tabName;
+              return (
+                <Button
+                  key={tabName}
+                  onClick={() => setSpecTab(tabName)}
+                  sx={{
+                    borderRadius: 0,
+                    px: { xs: 1.5, md: 3 },
+                    py: { xs: 0.8, md: 1.2 },
+                    fontWeight: 800,
+                    fontSize: { xs: '0.6rem', md: '0.75rem' },
+                    letterSpacing: 1,
+                    textTransform: 'uppercase',
+                    border: '2px solid #111111',
+                    backgroundColor: isSelected ? '#111111' : '#FFFFFF',
+                    color: isSelected ? '#FFFFFF' : '#111111',
+                    '&:hover': {
+                      backgroundColor: isSelected ? '#000000' : '#F4F6F8',
+                    },
+                    boxShadow: isSelected ? '0 4px 12px rgba(0,0,0,0.15)' : 'none',
+                    transition: 'all 0.15s ease',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
+                  }}
+                >
+                  {tabName}
+                </Button>
+              );
+            })}
+          </Stack>
+        </Box>
 
         {/* Specification Items with bullet format */}
-        <Box sx={{ pl: 1, minHeight: 180 }}>
+        <Box sx={{ pl: { xs: 0, md: 1 }, minHeight: { xs: 120, md: 180 } }}>
           {getSpecItems(specTab, row).map((item, idx) => (
-            <Box key={idx} sx={{ display: 'flex', alignItems: 'flex-start', mb: 2, pb: 1.5, borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
-              <Box sx={{ width: 6, height: 6, bgcolor: '#111111', mt: 0.8, mr: 2, flexShrink: 0 }} />
-              <Typography variant="body1" color="text.primary" fontWeight={700}>
+            <Box key={idx} sx={{ display: 'flex', alignItems: 'flex-start', mb: { xs: 1.5, md: 2 }, pb: 1.5, borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
+              <Box sx={{ width: 6, height: 6, bgcolor: '#111111', mt: 0.8, mr: { xs: 1, md: 2 }, flexShrink: 0 }} />
+              <Typography variant="body1" color="text.primary" fontWeight={700} sx={{ fontSize: { xs: '0.8rem', md: '1rem' }, lineHeight: 1.4 }}>
                 {item.label}: <span style={{ fontWeight: 500, color: '#475569', marginLeft: 6 }}>{item.value}</span>
               </Typography>
             </Box>
@@ -697,17 +719,27 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
         </Box>
       </DialogContent>
 
-      <Box sx={{ p: 3, borderTop: '1px solid rgba(0,0,0,0.06)', backgroundColor: '#F4F6F8', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="caption" color="text.secondary" fontWeight={500}>
+      {/* ── Footer ─────────────────────────────────────────────────────── */}
+      <Box sx={{
+        p: { xs: 2, md: 3 },
+        borderTop: '1px solid rgba(0,0,0,0.06)',
+        backgroundColor: '#F4F6F8',
+        display: 'flex',
+        flexDirection: { xs: 'column', sm: 'row' },
+        justifyContent: 'space-between',
+        alignItems: { xs: 'stretch', sm: 'center' },
+        gap: 1.5,
+      }}>
+        <Typography variant="caption" color="text.secondary" fontWeight={500} sx={{ fontSize: { xs: '0.65rem', md: '0.75rem' } }}>
           💡 Any edits, calculator modifications, or image uploads apply to your active view session only.
         </Typography>
-        <Box sx={{ display: 'flex', gap: 2 }}>
+        <Box sx={{ display: 'flex', gap: 1, justifyContent: { xs: 'flex-end', sm: 'flex-start' } }}>
           <Tooltip title="Copy all data">
-            <Button startIcon={<ContentCopy />} onClick={onCopy} sx={{ color: 'text.secondary', fontWeight: 600 }}>
-              Copy Data
+            <Button startIcon={<ContentCopy />} onClick={onCopy} size={isMobile ? "small" : "medium"} sx={{ color: 'text.secondary', fontWeight: 600 }}>
+              {isMobile ? 'Copy' : 'Copy Data'}
             </Button>
           </Tooltip>
-          <Button onClick={onClose} variant="contained" sx={{ backgroundColor: '#111111', color: '#fff', '&:hover': { backgroundColor: '#333' }, fontWeight: 700, px: 4 }}>
+          <Button onClick={onClose} variant="contained" size={isMobile ? "small" : "medium"} sx={{ backgroundColor: '#111111', color: '#fff', '&:hover': { backgroundColor: '#333' }, fontWeight: 700, px: { xs: 2, md: 4 } }}>
             Close
           </Button>
         </Box>

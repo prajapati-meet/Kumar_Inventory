@@ -15,6 +15,7 @@ import { getDashboardStats, getUploadHistory, getLoginHistory } from '../api/end
 
 /**
  * Admin Dashboard — shows modern KPI stats, upload history, and login audit log.
+ * Mobile responsive layout with fluid typography and card views for tables.
  */
 export default function AdminDashboard() {
   const [stats, setStats]                 = useState(null);
@@ -79,28 +80,28 @@ export default function AdminDashboard() {
 
   return (
     <Layout onUploadClick={() => setUploadOpen(true)}>
-      <Box sx={{ maxWidth: 1400, mx: 'auto', width: '100%', py: 1 }}>
+      <Box sx={{ maxWidth: 1400, mx: 'auto', width: '100%', py: { xs: 0, sm: 1 } }}>
         {/* Header Section */}
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', mb: 4, gap: 2 }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', mb: { xs: 2.5, md: 4 }, gap: 2 }}>
           <Box>
-            <Typography variant="h4" fontWeight={900} color="#111111" sx={{ letterSpacing: '-0.5px' }}>
+            <Typography variant="h4" fontWeight={900} color="#111111" sx={{ letterSpacing: '-0.5px', fontSize: { xs: '1.4rem', sm: '1.8rem', md: '2.125rem' } }}>
               System Administration Dashboard
             </Typography>
-            <Typography variant="body2" color="text.secondary" fontWeight={500} mt={0.5}>
+            <Typography variant="body2" color="text.secondary" fontWeight={500} mt={0.5} sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
               Monitor inventory catalogue metrics, data synchronization history, and security access logs.
             </Typography>
           </Box>
 
           {stats?.lastUploadTime && (
             <Chip
-              icon={<CheckCircle style={{ fontSize: 18, color: '#166534' }} />}
+              icon={<CheckCircle style={{ fontSize: 16, color: '#166534' }} />}
               label={`Last sync: ${new Date(stats.lastUploadTime).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}`}
               sx={{
                 bgcolor: '#DCFCE7',
                 color: '#166534',
                 fontWeight: 700,
-                fontSize: '0.8rem',
-                py: 2.2,
+                fontSize: { xs: '0.72rem', md: '0.8rem' },
+                py: { xs: 1.5, md: 2.2 },
                 px: 1,
                 borderRadius: 2.5,
                 border: '1px solid #BBF7D0',
@@ -114,16 +115,16 @@ export default function AdminDashboard() {
         <StatsCards cards={statCards} />
 
         {/* Upload History Section */}
-        <Box mt={6}>
-          <Stack direction="row" spacing={1.5} alignItems="center" mb={2.5}>
-            <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: 'rgba(227, 24, 55, 0.1)', color: '#E31837', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Box mt={{ xs: 3.5, md: 6 }}>
+          <Stack direction="row" spacing={1.5} alignItems="center" mb={2}>
+            <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: 'rgba(227, 24, 55, 0.1)', color: '#E31837', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <History fontSize="small" />
             </Box>
             <Box>
-              <Typography variant="h6" fontWeight={800} color="#111111">
+              <Typography variant="h6" fontWeight={800} color="#111111" sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}>
                 Data Synchronization & Upload History
               </Typography>
-              <Typography variant="caption" color="text.secondary" fontWeight={500}>
+              <Typography variant="caption" color="text.secondary" fontWeight={500} sx={{ display: { xs: 'none', sm: 'block' } }}>
                 Record of all Excel spreadsheet imports and catalogue updates.
               </Typography>
             </Box>
@@ -138,16 +139,16 @@ export default function AdminDashboard() {
         </Box>
 
         {/* Login Security Audit Log */}
-        <Box mt={6} mb={4}>
-          <Stack direction="row" spacing={1.5} alignItems="center" mb={2.5}>
-            <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: 'rgba(17, 17, 17, 0.1)', color: '#111111', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Box mt={{ xs: 3.5, md: 6 }} mb={4}>
+          <Stack direction="row" spacing={1.5} alignItems="center" mb={2}>
+            <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: 'rgba(17, 17, 17, 0.1)', color: '#111111', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <Security fontSize="small" />
             </Box>
             <Box>
-              <Typography variant="h6" fontWeight={800} color="#111111">
+              <Typography variant="h6" fontWeight={800} color="#111111" sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}>
                 Security Access & Login Audit
               </Typography>
-              <Typography variant="caption" color="text.secondary" fontWeight={500}>
+              <Typography variant="caption" color="text.secondary" fontWeight={500} sx={{ display: { xs: 'none', sm: 'block' } }}>
                 Real-time tracking of administrator and employee authentication events.
               </Typography>
             </Box>

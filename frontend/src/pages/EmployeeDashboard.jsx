@@ -5,7 +5,8 @@ import InventoryGrid from '../components/InventoryGrid';
 
 /**
  * Employee Dashboard — search bar + inventory data grid.
- * Employees can only search and view, not upload.
+ * Employees can search and view, not upload.
+ * Fully mobile responsive.
  */
 export default function EmployeeDashboard() {
   return (
@@ -14,8 +15,9 @@ export default function EmployeeDashboard() {
         <Typography
           variant="h5"
           fontWeight={800}
-          mb={3}
+          mb={{ xs: 2, md: 3 }}
           color="primary"
+          sx={{ fontSize: { xs: '1.25rem', md: '1.5rem' } }}
         >
           Inventory Search
         </Typography>

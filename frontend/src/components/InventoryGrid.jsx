@@ -2,7 +2,9 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Box, Paper, TextField, InputAdornment, IconButton,
   Tooltip, Button, ButtonGroup, Typography, Chip,
-  CircularProgress, Alert, FormControlLabel, Switch
+  CircularProgress, Alert, FormControlLabel, Switch,
+  Card, CardContent, CardActionArea, Stack, Pagination,
+  useMediaQuery, useTheme
 } from '@mui/material';
 import {
   Search, Clear, Download, Print, OpenInNew, TableRows, Restore
@@ -40,8 +42,84 @@ function Highlight({ text, keyword }) {
   );
 }
 
+/**
+ * Mobile card component for a single inventory row
+ */
+function MobileInventoryCard({ row, keyword, onClick }) {
+  return (
+    <Card
+      elevation={0}
+      sx={{
+        border: '1px solid rgba(0,0,0,0.08)',
+        borderRadius: 2.5,
+        overflow: 'hidden',
+        transition: 'all 0.2s ease',
+        '&:hover': {
+          borderColor: 'rgba(227, 24, 55, 0.3)',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
+        },
+      }}
+    >
+      <CardActionArea onClick={onClick} sx={{ p: 0 }}>
+        <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+          {/* Top row: Model chip + DMS code */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5, flexWrap: 'wrap' }}>
+            <Chip
+              label={row.model || '—'}
+              size="small"
+              sx={{ backgroundColor: '#E31837', color: '#fff', fontWeight: 700, fontSize: '0.7rem', height: 22 }}
+            />
+            {row.dmsCode && (
+              <Chip
+                label={`DMS: ${row.dmsCode}`}
+                size="small"
+                sx={{ backgroundColor: '#111', color: '#fff', fontWeight: 600, fontSize: '0.65rem', height: 20 }}
+              />
+            )}
+          </Box>
+
+          {/* Model Description */}
+          <Typography variant="subtitle2" fontWeight={700} color="text.primary" sx={{ mb: 1.5, lineHeight: 1.3 }}>
+            <Highlight text={row.modelDescription} keyword={keyword} />
+          </Typography>
+
+          {/* Key price fields */}
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
+            <Box sx={{ backgroundColor: '#F8F9FA', borderRadius: 1.5, p: 1 }}>
+              <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                Ex-Showroom
+              </Typography>
+              <Typography variant="body2" fontWeight={800} color="text.primary" sx={{ fontSize: '0.8rem' }}>
+                ₹{fmt(row.exShowroomPrice, true)}
+              </Typography>
+            </Box>
+            <Box sx={{ backgroundColor: '#F0F7FF', borderRadius: 1.5, p: 1 }}>
+              <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                On-Road Price
+              </Typography>
+              <Typography variant="body2" fontWeight={800} color="primary.main" sx={{ fontSize: '0.8rem' }}>
+                ₹{fmt(row.onRoadPrice, true)}
+              </Typography>
+            </Box>
+          </Box>
+
+          {/* Date if available */}
+          {row.date && (
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1, fontSize: '0.65rem' }}>
+              Date: {row.date}
+            </Typography>
+          )}
+        </CardContent>
+      </CardActionArea>
+    </Card>
+  );
+}
+
 export default function InventoryGrid() {
   const { isAdmin } = useAuth();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
   const [keyword, setKeyword] = useState('');
   const debouncedKeyword = useDebounce(keyword, 400);
   const [uniqueModels, setUniqueModels] = useState(false);
@@ -168,15 +246,25 @@ export default function InventoryGrid() {
     disableColumnMenu: col.field === 'model' ? !isAdmin : true,
   }));
 
+  // Calculate total pages for mobile pagination
+  const totalPages = Math.ceil(totalElements / paginationModel.pageSize);
+
   return (
     <Box>
       {/* ── Search bar & action buttons ───────────────────────────────── */}
-      <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+      <Box sx={{
+        display: 'flex',
+        gap: { xs: 1.5, md: 2 },
+        mb: 2,
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        flexDirection: { xs: 'column', sm: 'row' },
+      }}>
         <TextField
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
-          placeholder="Search by Model Description, Model, Model Name…"
-          sx={{ flex: 1, minWidth: 280 }}
+          placeholder={isMobile ? "Search models…" : "Search by Model Description, Model, Model Name…"}
+          sx={{ flex: 1, minWidth: { xs: '100%', sm: 280 }, width: { xs: '100%', sm: 'auto' } }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -193,33 +281,35 @@ export default function InventoryGrid() {
           }}
         />
 
-        {isAdmin && (
-          <FormControlLabel
-            control={<Switch checked={uniqueModels} onChange={(e) => setUniqueModels(e.target.checked)} color="primary" />}
-            label={<Typography variant="body2" sx={{ fontWeight: 500 }}>Unique Models</Typography>}
-          />
-        )}
-        <ButtonGroup variant="outlined" size="medium" sx={{ '& .MuiButton-root': { borderColor: 'rgba(0,0,0,0.12)', color: 'text.primary' } }}>
-          <Tooltip title="Export all results to Excel">
-            <Button
-              startIcon={exporting ? <CircularProgress size={14} /> : <Download />}
-              onClick={handleExport}
-              disabled={exporting || rows.length === 0}
-            >
-              Export
-            </Button>
-          </Tooltip>
-          <Tooltip title="Print this table">
-            <Button startIcon={<Print />} onClick={handlePrint} disabled={rows.length === 0}>
-              Print
-            </Button>
-          </Tooltip>
-          <Tooltip title="Reset view customizations (edits, deletions, images)">
-            <Button startIcon={<Restore />} onClick={handleResetView}>
-              Reset View
-            </Button>
-          </Tooltip>
-        </ButtonGroup>
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap', width: { xs: '100%', sm: 'auto' }, justifyContent: { xs: 'space-between', sm: 'flex-start' } }}>
+          {isAdmin && (
+            <FormControlLabel
+              control={<Switch checked={uniqueModels} onChange={(e) => setUniqueModels(e.target.checked)} color="primary" />}
+              label={<Typography variant="body2" sx={{ fontWeight: 500 }}>Unique Models</Typography>}
+            />
+          )}
+          <ButtonGroup variant="outlined" size={isMobile ? "small" : "medium"} sx={{ '& .MuiButton-root': { borderColor: 'rgba(0,0,0,0.12)', color: 'text.primary' } }}>
+            <Tooltip title="Export all results to Excel">
+              <Button
+                startIcon={exporting ? <CircularProgress size={14} /> : <Download />}
+                onClick={handleExport}
+                disabled={exporting || rows.length === 0}
+              >
+                {!isMobile && 'Export'}
+              </Button>
+            </Tooltip>
+            <Tooltip title="Print this table">
+              <Button startIcon={<Print />} onClick={handlePrint} disabled={rows.length === 0}>
+                {!isMobile && 'Print'}
+              </Button>
+            </Tooltip>
+            <Tooltip title="Reset view customizations (edits, deletions, images)">
+              <Button startIcon={<Restore />} onClick={handleResetView}>
+                {!isMobile && 'Reset View'}
+              </Button>
+            </Tooltip>
+          </ButtonGroup>
+        </Box>
       </Box>
 
       {/* ── Results summary ───────────────────────────────────────────── */}
@@ -248,92 +338,135 @@ export default function InventoryGrid() {
         </Alert>
       )}
 
-      {/* ── Data Table ────────────────────────────────────────────────── */}
-      <Paper
-        sx={{
-          width: '100%',
-          border: '1px solid rgba(0,0,0,0.06)',
-          borderRadius: 2,
-          backgroundColor: '#FFFFFF',
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)',
-        }}
-      >
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          rowCount={totalElements}
-          loading={loading}
-          pageSizeOptions={[25, 50, 100]}
-          paginationModel={paginationModel}
-          paginationMode="server"
-          onPaginationModelChange={setPaginationModel}
-          disableColumnSorting
-          onRowClick={(params) => setSelectedRow(params.row)}
-          disableRowSelectionOnClick
-          getRowClassName={(params) =>
-            params.indexRelativeToCurrentPage % 2 === 0 ? 'even-row' : 'odd-row'
-          }
+      {/* ── Data Display: Cards on Mobile, DataGrid on Desktop ─────── */}
+      {isMobile ? (
+        /* ── MOBILE: Card List ───────────────────────────────────────── */
+        <Box>
+          {loading && rows.length === 0 ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+              <CircularProgress size={32} sx={{ color: '#E31837' }} />
+            </Box>
+          ) : rows.length === 0 ? (
+            <Paper sx={{ p: 4, textAlign: 'center', border: '1px solid rgba(0,0,0,0.06)', borderRadius: 2 }}>
+              <Typography color="text.secondary" fontWeight={500}>No results found</Typography>
+            </Paper>
+          ) : (
+            <>
+              <Stack spacing={1.5}>
+                {rows.map((row) => (
+                  <MobileInventoryCard
+                    key={row.id}
+                    row={row}
+                    keyword={debouncedKeyword}
+                    onClick={() => setSelectedRow(row)}
+                  />
+                ))}
+              </Stack>
+
+              {/* Mobile Pagination */}
+              {totalPages > 1 && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, mb: 1 }}>
+                  <Pagination
+                    count={totalPages}
+                    page={paginationModel.page + 1}
+                    onChange={(_, page) => setPaginationModel((prev) => ({ ...prev, page: page - 1 }))}
+                    color="primary"
+                    size="small"
+                    siblingCount={0}
+                  />
+                </Box>
+              )}
+            </>
+          )}
+        </Box>
+      ) : (
+        /* ── DESKTOP: DataGrid Table (unchanged) ─────────────────────── */
+        <Paper
           sx={{
-            height: 'calc(100vh - 300px)',
-            minHeight: 400,
-            border: 'none',
-            '& .MuiDataGrid-columnHeaders': {
-              backgroundColor: '#111111 !important',
-              color: '#FFFFFF',
-              fontSize: '0.85rem',
-              fontWeight: 700,
-              position: 'sticky',
-              top: 0,
-              zIndex: 3,
-            },
-            '& .MuiDataGrid-columnHeader': {
-              backgroundColor: '#111111 !important',
-              color: '#FFFFFF !important',
-            },
-            '& .MuiDataGrid-columnHeadersInner': {
-              backgroundColor: '#111111 !important',
-            },
-            '& .MuiDataGrid-columnHeaderRow': {
-              backgroundColor: '#111111 !important',
-            },
-            '& .MuiDataGrid-columnHeaderTitle': {
-              fontWeight: 700,
-            },
-            '& .MuiDataGrid-iconSeparator': {
-              display: 'none',
-            },
-            '& .MuiDataGrid-columnHeader .MuiIconButton-root': {
-              color: '#FFFFFF !important',
-            },
-            '& .MuiDataGrid-sortIcon': {
-              color: '#FFFFFF !important',
-            },
-            '& .MuiDataGrid-menuIcon': {
-              color: '#FFFFFF !important',
-            },
-            '& .MuiDataGrid-filterIcon': {
-              color: '#FFFFFF !important',
-            },
-            '& .MuiDataGrid-cell': {
-              borderBottom: '1px solid rgba(0,0,0,0.04)',
-              fontSize: '0.85rem',
-            },
-            '& .even-row': {
-              backgroundColor: '#FFFFFF',
-            },
-            '& .odd-row': {
-              backgroundColor: '#F9FAFB',
-            },
-            '& .MuiDataGrid-row:hover': {
-              backgroundColor: 'rgba(227, 24, 55, 0.04)',
-              cursor: 'pointer',
-            },
-            '& .MuiDataGrid-footerContainer': {
-              borderTop: '1px solid rgba(0,0,0,0.06)',
-            }
+            width: '100%',
+            border: '1px solid rgba(0,0,0,0.06)',
+            borderRadius: 2,
+            backgroundColor: '#FFFFFF',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)',
           }}
-        />
-      </Paper>
+        >
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            rowCount={totalElements}
+            loading={loading}
+            pageSizeOptions={[25, 50, 100]}
+            paginationModel={paginationModel}
+            paginationMode="server"
+            onPaginationModelChange={setPaginationModel}
+            disableColumnSorting
+            onRowClick={(params) => setSelectedRow(params.row)}
+            disableRowSelectionOnClick
+            getRowClassName={(params) =>
+              params.indexRelativeToCurrentPage % 2 === 0 ? 'even-row' : 'odd-row'
+            }
+            sx={{
+              height: 'calc(100vh - 300px)',
+              minHeight: 400,
+              border: 'none',
+              '& .MuiDataGrid-columnHeaders': {
+                backgroundColor: '#111111 !important',
+                color: '#FFFFFF',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                position: 'sticky',
+                top: 0,
+                zIndex: 3,
+              },
+              '& .MuiDataGrid-columnHeader': {
+                backgroundColor: '#111111 !important',
+                color: '#FFFFFF !important',
+              },
+              '& .MuiDataGrid-columnHeadersInner': {
+                backgroundColor: '#111111 !important',
+              },
+              '& .MuiDataGrid-columnHeaderRow': {
+                backgroundColor: '#111111 !important',
+              },
+              '& .MuiDataGrid-columnHeaderTitle': {
+                fontWeight: 700,
+              },
+              '& .MuiDataGrid-iconSeparator': {
+                display: 'none',
+              },
+              '& .MuiDataGrid-columnHeader .MuiIconButton-root': {
+                color: '#FFFFFF !important',
+              },
+              '& .MuiDataGrid-sortIcon': {
+                color: '#FFFFFF !important',
+              },
+              '& .MuiDataGrid-menuIcon': {
+                color: '#FFFFFF !important',
+              },
+              '& .MuiDataGrid-filterIcon': {
+                color: '#FFFFFF !important',
+              },
+              '& .MuiDataGrid-cell': {
+                borderBottom: '1px solid rgba(0,0,0,0.04)',
+                fontSize: '0.85rem',
+              },
+              '& .even-row': {
+                backgroundColor: '#FFFFFF',
+              },
+              '& .odd-row': {
+                backgroundColor: '#F9FAFB',
+              },
+              '& .MuiDataGrid-row:hover': {
+                backgroundColor: 'rgba(227, 24, 55, 0.04)',
+                cursor: 'pointer',
+              },
+              '& .MuiDataGrid-footerContainer': {
+                borderTop: '1px solid rgba(0,0,0,0.06)',
+              }
+            }}
+          />
+        </Paper>
+      )}
 
       {/* ── Row Detail Dialog ─────────────────────────────────────────── */}
       <RowDetailDialog
