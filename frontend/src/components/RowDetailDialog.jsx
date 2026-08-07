@@ -12,6 +12,9 @@ import { useSnackbar } from 'notistack';
 import { useAuth } from '../auth/AuthContext';
 import { getVehicleImage, uploadVehicleImage, deleteVehicleImage } from '../api/endpoints';
 
+// Simple in-memory cache to prevent re-fetching the same image every time the dialog opens
+const imageCache = new Map();
+
 const CALC_FIELDS = [
   { id: 'exShowroomPrice',          label: 'Ex-Showroom Price',                    editable: false, toggleable: false },
   { id: 'rtoCharges',               label: 'RTO Registration Charges',             editable: true,  toggleable: false },
@@ -123,18 +126,29 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
       setToggles({ basicInsurance: true, insuranceVehicle: true, vmc: true });
 
       // Fetch persistent image from database using vehicle name/model key
-      setCustomImg(null); // Clear previous image while loading
       const vehicleKey = (row.modelName || row.model || '').trim().toLowerCase();
       if (vehicleKey) {
-        getVehicleImage(vehicleKey)
-          .then((res) => {
-            if (res.data && res.data.imageData) {
-              setCustomImg(res.data.imageData);
-            }
-          })
-          .catch((err) => {
-            console.error('Failed to load vehicle image from database:', err);
-          });
+        if (imageCache.has(vehicleKey)) {
+          // Instantly load from cache
+          setCustomImg(imageCache.get(vehicleKey));
+        } else {
+          setCustomImg(null); // Clear while loading only if not cached
+          getVehicleImage(vehicleKey)
+            .then((res) => {
+              if (res.data && res.data.imageData) {
+                imageCache.set(vehicleKey, res.data.imageData);
+                setCustomImg(res.data.imageData);
+              } else {
+                imageCache.set(vehicleKey, null); // Cache the absence of image to prevent re-fetching
+              }
+            })
+            .catch((err) => {
+              console.error('Failed to load vehicle image from database:', err);
+              imageCache.set(vehicleKey, null);
+            });
+        }
+      } else {
+        setCustomImg(null);
       }
     }
   }, [row]);
@@ -165,6 +179,7 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
         if (vehicleKey) {
           uploadVehicleImage(vehicleKey, base64)
             .then(() => {
+              imageCache.set(vehicleKey, base64);
               setCustomImg(base64);
               enqueueSnackbar('Vehicle photo uploaded and saved successfully!', { variant: 'success' });
             })
@@ -183,6 +198,7 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
     if (vehicleKey) {
       deleteVehicleImage(vehicleKey)
         .then(() => {
+          imageCache.set(vehicleKey, null);
           setCustomImg(null);
           enqueueSnackbar('Vehicle photo deleted successfully!', { variant: 'info' });
         })
