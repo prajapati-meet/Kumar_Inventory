@@ -111,12 +111,14 @@ export default function LoginPage() {
               autoComplete="username"
               autoFocus
               sx={{ mb: 3 }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Person sx={{ color: 'text.secondary' }} />
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Person sx={{ color: 'text.secondary' }} />
+                    </InputAdornment>
+                  ),
+                }
               }}
             />
 
@@ -130,19 +132,25 @@ export default function LoginPage() {
               required
               autoComplete="current-password"
               sx={{ mb: 4 }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <LockOutlined sx={{ color: 'text.secondary' }} />
-                  </InputAdornment>
-                ),
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={() => setShowPassword((p) => !p)} edge="end">
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LockOutlined sx={{ color: 'text.secondary' }} />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end" sx={{ mr: 1 }}>
+                      <IconButton 
+                        onClick={() => setShowPassword(!showPassword)}
+                        onMouseDown={(e) => e.preventDefault()}
+                        sx={{ color: 'text.secondary' }}
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }
               }}
             />
 
