@@ -2,6 +2,11 @@ spring:
   application:
     name: inventory-app
 
+  main:
+    lazy-initialization: true
+  jmx:
+    enabled: false
+
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/inventory_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=Asia/Kolkata&allowPublicKeyRetrieval=true}
     username: ${DB_USERNAME:root}
