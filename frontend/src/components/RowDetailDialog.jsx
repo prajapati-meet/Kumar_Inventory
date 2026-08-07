@@ -557,50 +557,10 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
           </Box>
         </Box>
 
-        {/* Total Estimated Price Banner */}
-        <Box sx={{
-          p: { xs: 2, md: 3 },
-          mb: { xs: 2, md: 4 },
-          borderRadius: 3,
-          background: 'linear-gradient(135deg, #111111 0%, #2A2A2A 100%)',
-          color: '#fff',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.15)'
-        }}>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' } }}>
-            <Box>
-              <Typography variant="overline" sx={{ color: '#94A3B8', fontWeight: 700, letterSpacing: 1.5, fontSize: { xs: '0.6rem', md: '0.75rem' } }}>
-                TOTAL ESTIMATED ON-ROAD PRICE
-              </Typography>
-              <Typography variant={isMobile ? "h4" : "h3"} sx={{ fontWeight: 900, color: '#FFFFFF', mt: 0.5 }}>
-                ₹{calcTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </Typography>
-            </Box>
-            <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
-              <Chip label="Live Interactive Sum" size="small" sx={{ bgcolor: 'rgba(227,24,55,0.2)', color: '#FF4D6D', fontWeight: 700, border: '1px solid rgba(227,24,55,0.4)', fontSize: { xs: '0.65rem', md: '0.75rem' } }} />
-              <Button 
-                variant="outlined" 
-                size="small" 
-                startIcon={<Refresh />}
-                onClick={handleResetCalculator}
-                sx={{ color: '#fff', borderColor: 'rgba(255,255,255,0.3)', '&:hover': { borderColor: '#fff', bgcolor: 'rgba(255,255,255,0.1)' }, fontWeight: 600, fontSize: { xs: '0.65rem', md: '0.8125rem' } }}
-              >
-                Reset
-              </Button>
-              <Button
-                variant="contained"
-                size="small"
-                startIcon={<Save />}
-                onClick={handleSaveCalculatorToView}
-                sx={{ bgcolor: '#E31837', '&:hover': { bgcolor: '#B00018' }, fontWeight: 700, fontSize: { xs: '0.65rem', md: '0.8125rem' } }}
-              >
-                Save
-              </Button>
-            </Stack>
-          </Box>
-        </Box>
+
 
         {/* Grid of Input Boxes styled like Screenshot 1 */}
-        <Grid container spacing={{ xs: 1.5, md: 3 }} mb={{ xs: 3, md: 6 }}>
+        <Grid container spacing={{ xs: 1.5, md: 3 }} mb={{ xs: 2, md: 4 }}>
           {CALC_FIELDS.map((field) => {
             const isEditable = field.editable;
             const isToggleable = field.toggleable;
@@ -673,6 +633,48 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
             );
           })}
         </Grid>
+
+        {/* Total Estimated Price Banner (Moved to bottom) */}
+        <Box sx={{
+          p: { xs: 2, md: 3 },
+          mb: { xs: 3, md: 6 },
+          borderRadius: 3,
+          background: 'linear-gradient(135deg, #111111 0%, #2A2A2A 100%)',
+          color: '#fff',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.15)'
+        }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' } }}>
+            <Box>
+              <Typography variant="overline" sx={{ color: '#94A3B8', fontWeight: 700, letterSpacing: 1.5, fontSize: { xs: '0.6rem', md: '0.75rem' } }}>
+                TOTAL ESTIMATED ON-ROAD PRICE
+              </Typography>
+              <Typography variant={isMobile ? "h4" : "h3"} sx={{ fontWeight: 900, color: '#FFFFFF', mt: 0.5 }}>
+                ₹{calcTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </Typography>
+            </Box>
+            <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
+              <Chip label="Live Interactive Sum" size="small" sx={{ bgcolor: 'rgba(227,24,55,0.2)', color: '#FF4D6D', fontWeight: 700, border: '1px solid rgba(227,24,55,0.4)', fontSize: { xs: '0.65rem', md: '0.75rem' } }} />
+              <Button 
+                variant="outlined" 
+                size="small" 
+                startIcon={<Refresh />}
+                onClick={handleResetCalculator}
+                sx={{ color: '#fff', borderColor: 'rgba(255,255,255,0.3)', '&:hover': { borderColor: '#fff', bgcolor: 'rgba(255,255,255,0.1)' }, fontWeight: 600, fontSize: { xs: '0.65rem', md: '0.8125rem' } }}
+              >
+                Reset
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<Save />}
+                onClick={handleSaveCalculatorToView}
+                sx={{ bgcolor: '#E31837', '&:hover': { bgcolor: '#B00018' }, fontWeight: 700, fontSize: { xs: '0.65rem', md: '0.8125rem' } }}
+              >
+                Save
+              </Button>
+            </Stack>
+          </Box>
+        </Box>
 
         <Divider sx={{ mb: { xs: 3, md: 5 }, borderColor: 'rgba(0,0,0,0.08)' }} />
 
