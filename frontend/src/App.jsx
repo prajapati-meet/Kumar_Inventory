@@ -46,21 +46,15 @@ export default function App() {
                 }
               />
 
-              {/* Root redirect: admins → dashboard, employees → search */}
-              <Route path="/" element={<RoleRedirect />} />
+              {/* Root redirect: always go to login */}
+              <Route path="/" element={<Navigate to="/login" replace />} />
 
               {/* Catch-all */}
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
           </BrowserRouter>
         </AuthProvider>
       </SnackbarProvider>
     </ThemeProvider>
   );
-}
-
-function RoleRedirect() {
-  const user = JSON.parse(localStorage.getItem('user') || 'null');
-  if (!user) return <Navigate to="/login" replace />;
-  return <Navigate to={user.role === 'ADMIN' ? '/dashboard' : '/search'} replace />;
 }

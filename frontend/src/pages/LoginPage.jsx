@@ -168,16 +168,6 @@ export default function LoginPage() {
             </Button>
           </Box>
 
-          {/* Demo credentials helper */}
-          <Box sx={{ mt: 4, pt: 3, borderTop: '1px solid rgba(0,0,0,0.06)' }}>
-            <Typography variant="caption" color="text.secondary" display="block" textAlign="center" mb={1.5} fontWeight={600}>
-              Demo credentials
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Chip label="admin / Admin@123" size="small" variant="outlined" sx={{ color: '#E31837', borderColor: '#E31837' }} />
-              <Chip label="employee / Employee@123" size="small" variant="outlined" sx={{ color: '#111111', borderColor: '#111111' }} />
-            </Box>
-          </Box>
         </CardContent>
       </Card>
     </Box>
