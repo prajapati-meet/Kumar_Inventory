@@ -7,7 +7,7 @@ import axios from 'axios';
  * - Handles 401 → redirects to login
  */
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080',
+  baseURL: import.meta.env.VITE_API_URL || '',
   timeout: 60000,
   headers: { 'Content-Type': 'application/json' },
 });
@@ -37,7 +37,7 @@ api.interceptors.response.use(
       if (refreshToken) {
         try {
           const res = await axios.post(
-            `${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/auth/refresh`,
+            `${import.meta.env.VITE_API_URL || ''}/api/auth/refresh`,
             { refreshToken }
           );
           const { accessToken } = res.data;

@@ -15,7 +15,7 @@ import java.util.List;
  * call the Spring Boot REST API.
  *
  * In production, set the CORS_ALLOWED_ORIGINS environment variable to your
- * Vercel URL (e.g. https://inventory.vercel.app).
+ * deployed frontend URL.
  */
 @Configuration
 public class CorsConfig {

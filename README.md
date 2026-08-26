@@ -12,7 +12,7 @@
 4. [Default Credentials](#default-credentials)
 5. [API Reference](#api-reference)
 6. [File Purpose Guide](#file-purpose-guide)
-7. [Deployment — Vercel + Railway](#deployment)
+7. [Deployment — Oracle Cloud Free Tier](#deployment)
 8. [AWS Deployment Guide](#aws-deployment)
 9. [Environment Variables](#environment-variables)
 
@@ -21,11 +21,11 @@
 ## Architecture
 
 ```
-React Frontend (Vercel / Nginx)
+React Frontend (Oracle Cloud / Nginx)
         ↓  HTTPS + JWT
-Spring Boot REST API (Railway / Render / AWS EC2)
+Spring Boot REST API (Oracle Cloud / Docker)
         ↓  JPA / JDBC
-MySQL Database (Railway / AWS RDS)
+MySQL Database (Oracle Cloud / Docker)
 ```
 
 ---
@@ -192,34 +192,37 @@ GET /api/inventory/search?keyword=Deluxe&page=0&size=25&sortBy=modelDescription&
 
 ## Deployment
 
-### Vercel + Railway + MySQL (Railway)
+### Oracle Cloud Free Tier (Docker Compose)
 
-#### Step 1 — MySQL on Railway
-1. Create a free Railway project → **Add MySQL** plugin
-2. Note the `DATABASE_URL`, `MYSQLUSER`, `MYSQLPASSWORD`, `MYSQLDATABASE`, `MYSQLHOST`, `MYSQLPORT`
+The recommended approach is to deploy the entire stack using Docker Compose on an Oracle Cloud Infrastructure (OCI) Always Free Compute Instance.
 
-#### Step 2 — Spring Boot on Railway
-1. Push the `backend/` folder to GitHub
-2. In Railway → **New Service → GitHub Repo**
-3. Set environment variables:
-   ```
-   DB_URL=jdbc:mysql://<MYSQLHOST>:<MYSQLPORT>/<MYSQLDATABASE>?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=Asia/Kolkata&allowPublicKeyRetrieval=true
-   DB_USERNAME=<MYSQLUSER>
-   DB_PASSWORD=<MYSQLPASSWORD>
-   JWT_SECRET=<generate-a-strong-64-char-secret>
-   CORS_ALLOWED_ORIGINS=https://your-app.vercel.app
-   PORT=8080
-   ```
-4. Railway auto-detects Dockerfile and builds
+#### Step 1 — Provision an Oracle Cloud VM
+1. Create an **Oracle Cloud Free Tier** account.
+2. Launch a Compute Instance (choose **Ampere A1 Compute** for up to 4 ARM cores and 24GB RAM, or the standard **AMD Micro** instance).
+3. Use **Ubuntu 22.04 / 24.04** as the OS image.
+4. Ensure you add your SSH key.
+5. In the Oracle Cloud VCN (Virtual Cloud Network) Security List, open ingress rules for ports `80` (Frontend) and `8080` (Backend).
 
-#### Step 3 — React on Vercel
-1. Push the entire project to GitHub
-2. Import in Vercel → set **Root Directory** to `frontend`
-3. Set environment variable:
+#### Step 2 — Set Up the Server
+1. SSH into the instance: `ssh -i <your-key> ubuntu@<instance-public-ip>`
+2. Install Docker and Docker Compose:
+   ```bash
+   sudo apt update && sudo apt install docker.io docker-compose -y
+   sudo systemctl enable --now docker
+   sudo usermod -aG docker $USER
+   # Exit and reconnect to apply group changes
    ```
-   VITE_API_URL=https://your-backend.railway.app
+
+#### Step 3 — Deploy the Application
+1. Clone this repository on the server.
+2. Edit the `.env` or `docker-compose.yml` to change default passwords, `JWT_SECRET`, and ensure `CORS_ALLOWED_ORIGINS` includes the server's public IP or domain.
+3. Start the containers:
+   ```bash
+   docker-compose up --build -d
    ```
-4. Deploy!
+4. **Access the application**:
+   - Frontend: `http://<instance-public-ip>`
+   - Backend API: `http://<instance-public-ip>:8080`
 
 ---
 
