@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box, Paper, TextField, InputAdornment, IconButton,
   Tooltip, Button, ButtonGroup, Typography, Chip,
@@ -7,7 +7,7 @@ import {
   useMediaQuery, useTheme
 } from '@mui/material';
 import {
-  Search, Clear, Download, Print, OpenInNew, TableRows, Restore
+  Search, Clear, Download, Print, TableRows, Restore
 } from '@mui/icons-material';
 import { DataGrid } from '@mui/x-data-grid';
 import { searchInventory, exportInventory } from '../api/endpoints';

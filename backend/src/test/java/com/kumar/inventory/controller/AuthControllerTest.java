@@ -1,9 +1,9 @@
 package com.kumar.inventory.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kumar.inventory.dto.LoginRequest;
-import com.kumar.inventory.model.Role;
-import com.kumar.inventory.model.User;
+import com.kumar.inventory.dto.request.LoginRequest;
+import com.kumar.inventory.entity.Role;
+import com.kumar.inventory.entity.User;
 import com.kumar.inventory.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
