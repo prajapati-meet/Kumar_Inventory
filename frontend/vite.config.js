@@ -6,7 +6,6 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      // Proxy API calls to Spring Boot during development (avoids CORS issues in dev)
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
@@ -17,5 +16,10 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: false,
     chunkSizeWarningLimit: 1000,
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/setupTests.js',
   },
 });
