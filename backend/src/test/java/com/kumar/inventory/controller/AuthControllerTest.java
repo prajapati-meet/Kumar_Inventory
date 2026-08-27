@@ -2,7 +2,6 @@ package com.kumar.inventory.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kumar.inventory.dto.request.LoginRequest;
-import com.kumar.inventory.entity.Role;
 import com.kumar.inventory.entity.User;
 import com.kumar.inventory.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,8 +40,9 @@ public class AuthControllerTest {
         userRepository.deleteAll();
         User user = new User();
         user.setUsername("testadmin");
+        user.setFullName("Test Admin");
         user.setPassword(passwordEncoder.encode("password123"));
-        user.setRole(Role.ADMIN);
+        user.setRole(User.Role.ADMIN);
         userRepository.save(user);
     }
 
