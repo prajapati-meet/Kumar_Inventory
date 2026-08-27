@@ -83,6 +83,7 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
   const [editForm, setEditForm] = useState({});
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [customImg, setCustomImg] = useState(null);
+  const [isImageLoading, setIsImageLoading] = useState(false);
   const [specTab, setSpecTab] = useState('OVERVIEW & CODES');
   const [calcValues, setCalcValues] = useState({});
   const [toggles, setToggles] = useState({
@@ -131,8 +132,10 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
         if (imageCache.has(vehicleKey)) {
           // Instantly load from cache
           setCustomImg(imageCache.get(vehicleKey));
+          setIsImageLoading(false);
         } else {
           setCustomImg(null); // Clear while loading only if not cached
+          setIsImageLoading(true);
           getVehicleImage(vehicleKey)
             .then((res) => {
               if (res.data && res.data.imageData) {
@@ -145,10 +148,14 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
             .catch((err) => {
               console.error('Failed to load vehicle image from database:', err);
               imageCache.set(vehicleKey, null);
+            })
+            .finally(() => {
+              setIsImageLoading(false);
             });
         }
       } else {
         setCustomImg(null);
+        setIsImageLoading(false);
       }
     }
   }, [row]);
@@ -351,7 +358,9 @@ export default function RowDetailDialog({ row, keyword, onClose, onCopy, onUpdat
                 boxShadow: 'inset 0 2px 20px rgba(0,0,0,0.02)',
               }}
             >
-              {customImg ? (
+              {isImageLoading ? (
+                <CircularProgress size={40} sx={{ color: '#E31837' }} />
+              ) : customImg ? (
                 <>
                   <img src={customImg} alt={vehicleName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   {isAdmin && (
